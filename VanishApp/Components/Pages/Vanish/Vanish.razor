@@ -1,0 +1,224 @@
+﻿@page "/vanish"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using VanishApp.Components.Pages.Vanish.Components
+@using VanishApp.Data
+@using VanishApp.Data.DTO
+@using VanishApp.Data.Entities
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject ApplicationDbContext DbContext
+@inject NavigationManager NavigationMan
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h3>Vanish</h3>
+
+@if (Screen == Screen.ItemList)
+{
+    @if (Items is not null)
+    {
+        <ItemList Items=@Items OnSelectedItemChanged="SetSelectedItem"/>
+    }
+
+    if (IsItemVanishable(selectedItem) && Client!.Balance>0)
+    {
+        <button class="btn btn-primary" @onclick="() => GoToNewVanish(false)">Plan new Vanish</button>
+        <button class="btn btn-secondary" @onclick="() => GoToNewVanish(true)">Vanish NOW!</button>
+    }
+
+    if (Client.Balance <= 0)
+    {
+        <div class="alert alert-danger">
+            <p>Current balance: @Client.Balance</p>
+            <p>Your balance is negative. Please add more funds via bank transfer:</p>
+            <p><strong>Transfer Title:</strong>@Client.getBankDetailsForTransfer().Item2</p>
+            <p><strong>Bank Account:</strong> @Client.getBankDetailsForTransfer().Item1</p>
+        </div>
+    }
+}
+@if (Screen == Screen.NewVanish)
+{
+    <VanishDuration VanishNow="@VanishNow" OnFinishDuration="GotoWarehouseList"/>
+}
+@if (Screen == Screen.WarehouseList)
+{
+    @if (WarehouseList!.Count() == 0)
+    {
+        <div class="container mt-5">
+            <div class="alert alert-warning text-center" role="alert">
+                <h4 class="alert-heading">No Warehouses Found</h4>
+                <p>There are no warehouses matching the criteria.</p>
+                <p class="mb-0">You might want to try changing the vanishing period or breaking the item into smaller items.</p>
+            </div>
+            <div class="text-center mt-4">
+                <a @onclick="Refresh" class="btn btn-primary">Back to Item List</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <WarehouseList Warehouses="WarehouseList" OnSelectedWarehouseChanged="GotoInsurance"/>
+    }
+}
+@if (Screen == Screen.Insurance)
+{
+    if (!WantInsurance)
+    {
+        <Insurance InsuranceResponseChanged="AnswerInsuranceQuestion"/>
+    }
+    else
+    {
+        <Policylist Policies="InsuranceList" OnSelectedPolicyChanged="SetPolicy"/>
+    }
+}
+@if (Screen == Screen.Payment)
+{
+    <Total Client="Client" OldBalance="@Client!.Balance" TotalCost="@CalculateTotal()" onDone="OnDone"/>
+}
+
+@code {
+    private Screen Screen { get; set; } = Screen.ItemList;
+    private string? UserId;
+    private Client? Client { get; set; }
+    private List<Item>? Items { get; set; }
+    private Item? selectedItem;
+    private List<ItemStorageState> VanishableItemStates { get; } =new List<ItemStorageState>(){ ItemStorageState.Returned, ItemStorageState.Cancelled };
+    private bool VanishNow { get; set; }
+    private VanishDurationDTO? _vanishDurationDto;
+    private List<Warehouse>? WarehouseList { get; set; }
+    private Warehouse? _selectedWarehouse;
+    private List<InsurancePolicy> InsuranceList { get; set; }
+    private bool WantInsurance { get; set; } = false;
+    private InsurancePolicy? InsurancePolicy { get; set; }
+    private ItemStorage ItemStorage { get; set; }
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var name = user.Identity?.Name;
+        UserId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        Items = DbContext.Items
+            .Where(item => item.ClientId == UserId) //.OrderBy(item => item.Id)
+            .Include(item => item.Storages)
+            .ThenInclude(storage => storage.Warehouse)
+            .Include(item => item.Storages)
+            .ThenInclude(storage => storage.InsurancePolicy).ToList();
+
+        Client = DbContext.Clients.First(client => client.Id == UserId);
+    }
+
+
+    private void GoToNewVanish(bool b)
+    {
+        VanishNow = b;
+        Screen = Screen.NewVanish;
+    }
+
+    public void SetSelectedItem(Item item)
+    {
+        selectedItem = item;
+        InsuranceList = item is HazardItem ? DbContext.InsurancePolicies.Where(policy => policy.IncludesHazardItems == true).ToList() : DbContext.InsurancePolicies.ToList();
+    }
+
+    public bool IsItemVanishable(Item? item)
+    {
+        if (item is null)
+        {
+            return false;
+        }
+        
+        return  item.Storages.Count() < 1 || VanishableItemStates.Contains(item.Storages.MaxBy(storage => storage.Id)!.StorageState);
+    }
+
+    public void GotoWarehouseList(VanishDurationDTO vanishDurationDto)
+    {
+        _vanishDurationDto = vanishDurationDto;
+        WarehouseList = DbContext.Warehouses.Where(warehouse => warehouse.ItemStorage.Where(storage =>
+            (storage.StartDate > vanishDurationDto.VanishDateTimeStart && storage.StartDate < vanishDurationDto.VanishDateTimeEnd)
+            ||
+            (storage.EndDate > vanishDurationDto.VanishDateTimeStart && storage.EndDate < vanishDurationDto.VanishDateTimeEnd)
+            ||
+            (storage.StartDate < vanishDurationDto.VanishDateTimeStart && storage.EndDate > vanishDurationDto.VanishDateTimeEnd)
+        ).Select(storage => storage.Item.Size).Sum() + selectedItem!.Size < warehouse.TotalCapacity).ToList();
+
+
+        Screen = Screen.WarehouseList;
+    }
+
+    public void GotoInsurance(Warehouse warehouse)
+    {
+        _selectedWarehouse = warehouse;
+        Screen = InsuranceList.Count == 0 ? Screen.Payment : Screen.Insurance;
+    }
+
+    public void AnswerInsuranceQuestion(bool b)
+    {
+        if (!b)
+        {
+            Screen = Screen.Payment;
+        }
+
+        WantInsurance = b;
+    }
+
+    public void SetPolicy(InsurancePolicy insurancePolicy)
+    {
+        InsurancePolicy = insurancePolicy;
+        Screen = Screen.Payment;
+    }
+
+    private decimal CalculateTotal()
+    {
+        if (VanishNow)
+        {
+            ItemStorage = new UnplannedStorage() { };
+        }
+        else
+        {
+            ItemStorage = new PlannedStorage() { PlannedDate = DateTime.Today };
+        }
+
+        ItemStorage.Warehouse = _selectedWarehouse!;
+        if (WantInsurance)
+        {
+            ItemStorage.InsurancePolicy = InsurancePolicy;
+        }
+
+        ItemStorage.Item = selectedItem!;
+
+        if (!string.IsNullOrWhiteSpace(_vanishDurationDto!.PickupAddress))
+        {
+            ItemStorage.PickupAddress = _vanishDurationDto!.PickupAddress;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_vanishDurationDto!.DropoffAddress))
+        {
+            ItemStorage.DropOffAddress = _vanishDurationDto!.DropoffAddress;
+        }
+
+        ItemStorage.StartDate = _vanishDurationDto.VanishDateTimeStart;
+        ItemStorage.EndDate = _vanishDurationDto.VanishDateTimeEnd;
+
+
+        return ItemStorage.CalculateTotalFee();
+    }
+
+    public void OnDone()
+    {
+        DbContext.Add(ItemStorage);
+        Client!.Balance -= CalculateTotal();
+        DbContext.SaveChanges();
+
+        NavigationMan.Refresh(true);
+    }
+
+    public void Refresh()
+    {
+        NavigationMan.Refresh(true);
+    }
+
+}

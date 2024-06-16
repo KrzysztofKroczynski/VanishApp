@@ -1,0 +1,73 @@
+﻿@using VanishApp.Data
+@using VanishApp.Data.Entities
+@inject ApplicationDbContext DbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationMan
+@rendermode InteractiveServer
+
+
+
+
+
+<h3>Item List <button class="btn btn-primary" @onclick="HandleAddItem">Add Item</button></h3>
+
+<ItemsTable ItemList="@Items" OnSelectedItemChanged="HandleItemSelected" />
+
+@if (_selectedItem != null)
+{
+    <div class="alert alert-info mt-3">
+        <strong>Selected Item:</strong><br />
+        Id: @_selectedItem.Id<br />
+        Name: @_selectedItem.Name<br />
+        Size: @_selectedItem.Size<br />
+        Weight: @_selectedItem.Weight <br />
+        Last vanish:<br />
+        @if (LastItemStorage is not null)
+        { <div>
+            Vanish date: @LastItemStorage.StartDate <br />
+            Status: @LastItemStorage.StorageState <br />
+            Warehouse: @LastItemStorage.Warehouse.Address <br />
+            Insurance:
+            @if (LastItemStorage.InsurancePolicy is not null )
+            {
+                <div>
+                    Insurance policy: @LastItemStorage.InsurancePolicy.Name
+                    Max Payout: @LastItemStorage.InsurancePolicy.MaxPayout
+                </div>
+            }else
+            {
+                <div>N/A</div>;
+            }
+        </div>
+        }
+        else
+        {
+            <p>N/A</p>;
+        }
+        
+    </div>
+}
+
+@code {
+
+    
+    [Parameter]
+    public List<Item> Items { get; set; }
+    
+    private Item? _selectedItem;
+    private ItemStorage? LastItemStorage { get; set; }
+    
+    private void HandleItemSelected(Item item)
+    {
+        _selectedItem = item;
+        LastItemStorage = item.Storages.MaxBy(storage => storage.Id);
+        OnSelectedItemChanged.InvokeAsync(item);
+    }
+    [Parameter] public EventCallback<Item> OnSelectedItemChanged { get; set; }
+    private void HandleAddItem()
+    {
+        NavigationMan.NavigateTo("/newitem");
+    }
+  
+
+}

@@ -1,0 +1,113 @@
+﻿@rendermode InteractiveServer
+@page "/newitem"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using VanishApp.Data
+@using VanishApp.Data.Entities
+@attribute [Authorize]
+@inject NavigationManager NM
+@inject ApplicationDbContext DbC
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+
+<h3>New Item Information</h3>
+
+<div class="form-group">
+    <label for="itemName">Name</label>
+    <input type="text" class="form-control" id="itemName" @bind="_item.Name">
+</div>
+@if (string.IsNullOrWhiteSpace(_item.Name) && _showValidationMessages)
+{
+<div class="text-danger">Name cannot be empty</div>
+}
+
+<div class="form-group">
+    <label for="itemWeight">Weight (kg)</label>
+    <input type="number" class="form-control" id="itemWeight" @bind="_item.Weight" step="1">
+    @if (_item.Weight <= 0 && _showValidationMessages)
+    {
+    <div class="text-danger">Weight must be greater than zero</div>
+    }
+</div>
+
+<div class="form-group">
+    <label for="itemSize">Size (number of pallets)</label>
+    <input type="number" class="form-control" id="itemSize" @bind="_item.Size">
+    @if (_item.Size <= 0 && _showValidationMessages)
+    {
+    <div class="text-danger">Size must be greater than zero</div>
+    }
+</div>
+
+<div class="form-group form-check">
+    <input type="checkbox" class="form-check-input" id="isHazard" @bind="_item.IsHazard">
+    <label class="form-check-label" for="isHazard">Is Hazard</label>
+</div>
+
+@if (_item.IsHazard)
+{
+    <div class="form-group">
+        <label for="fireHazard">Fire Hazard</label>
+        <input type="number" class="form-control" id="fireHazard" @bind="_item.FireHazard" min="0" max="4">
+    </div>
+
+    <div class="form-group">
+        <label for="healthHazard">Health Hazard</label>
+        <input type="number" class="form-control" id="healthHazard" @bind="_item.HealthHazard" min="0" max="4">
+    </div>
+
+    <div class="form-group">
+        <label for="instabilityHazard">Instability Hazard</label>
+        <input type="number" class="form-control" id="instabilityHazard" @bind="_item.InstabilityHazard" min="0" max="4">
+    </div>
+}
+
+<button class="btn btn-primary" @onclick="SaveItem">Save</button>
+
+@code {
+    private Data.DTO.NewItem _item = new();
+    private Client? Client { get; set; }
+    private bool _showValidationMessages = false;
+
+    private void SaveItem()
+    {
+        
+        _showValidationMessages = true;
+        if (string.IsNullOrWhiteSpace(_item.Name) || _item.Weight <= 0 || _item.Size <= 0)
+        {
+            return; // Validation failed, do not proceed
+        }
+        
+        
+        Item newItem;
+        if (_item.IsHazard)
+        {
+            
+            
+            
+            newItem = new HazardItem(){FireHazard = _item.FireHazard, HealthHazard = _item.HealthHazard, InstabilityHazard = _item.InstabilityHazard};
+        }
+        else
+        {
+            newItem = new Item();
+        }
+
+        (newItem.Client, newItem.Name, newItem.Size, newItem.Weight) = (Client!,_item.Name, _item.Size, _item.Weight);
+
+        DbC.Add(newItem);
+        DbC.SaveChanges();
+        NM.NavigateTo("/vanish");
+    }
+    
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var name = user.Identity?.Name;
+        var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        
+
+        Client = DbC.Clients.First(client => client.Id==userId);
+    }
+}

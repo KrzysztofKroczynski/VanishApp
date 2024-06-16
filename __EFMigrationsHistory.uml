@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.__EFMigrationsHistory</OriginalElement>
+  <nodes>
+    <node x="351.5" y="962.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.InsurancePolicies</node>
+    <node x="-411.35171974522297" y="861.2295541401273">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.EnterpriseClient</node>
+    <node x="605.5" y="477.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserRoles</node>
+    <node x="222.5" y="1210.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.ItemStorages</node>
+    <node x="-206.18191082802554" y="861.2295541401273">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.PrivateClient</node>
+    <node x="575.5746496815286" y="1623.5895541401273">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.__EFMigrationsHistory</node>
+    <node x="362.5" y="1583.0">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.sqlite_master</node>
+    <node x="-41.0" y="-192.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUsers</node>
+    <node x="-117.5" y="465.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Clients</node>
+    <node x="-42.0" y="294.0">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserTokens</node>
+    <node x="200.5" y="454.0">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserLogins</node>
+    <node x="440.0" y="294.0">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserClaims</node>
+    <node x="234.5" y="699.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Warehouses</node>
+    <node x="767.0" y="-66.0">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetRoles</node>
+    <node x="5.0" y="676.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Items</node>
+    <node x="761.0" y="294.0">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetRoleClaims</node>
+    <node x="111.5" y="1617.5">2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.sqlite_sequence</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserClaims" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUsers" relationship="REFERENCES">
+      <point x="0.0" y="-66.0" />
+      <point x="537.0" y="260.0" />
+      <point x="297.0" y="260.0" />
+      <point x="297.0" y="220.0" />
+      <point x="136.0" y="220.0" />
+      <point x="59.0" y="192.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.ItemStorages" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Items" relationship="REFERENCES">
+      <point x="-63.0" y="-169.5" />
+      <point x="254.0" y="1180.0" />
+      <point x="97.0" y="1180.0" />
+      <point x="0.0" y="123.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserRoles" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetRoles" relationship="REFERENCES">
+      <point x="45.75" y="-42.5" />
+      <point x="742.75" y="280.0" />
+      <point x="857.0" y="280.0" />
+      <point x="0.0" y="66.0" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Clients" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUsers" relationship="REFERENCES">
+      <point x="0.0" y="-54.5" />
+      <point x="-63.0" y="280.0" />
+      <point x="18.0" y="280.0" />
+      <point x="-59.0" y="192.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.PrivateClient" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Clients" relationship="REFERENCES">
+      <point x="0.0" y="-66.0" />
+      <point x="-133.18191082802554" y="640.0" />
+      <point x="-23.0" y="640.0" />
+      <point x="-23.0" y="600.0" />
+      <point x="-63.0" y="600.0" />
+      <point x="0.0" y="54.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.ItemStorages" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Warehouses" relationship="REFERENCES">
+      <point x="0.0" y="-169.5" />
+      <point x="0.0" y="100.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.EnterpriseClient" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Clients" relationship="REFERENCES">
+      <point x="0.0" y="-66.0" />
+      <point x="-324.85171974522297" y="600.0" />
+      <point x="-63.0" y="600.0" />
+      <point x="0.0" y="54.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserTokens" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUsers" relationship="REFERENCES">
+      <point x="0.0" y="-66.0" />
+      <point x="57.0" y="260.0" />
+      <point x="297.0" y="260.0" />
+      <point x="297.0" y="220.0" />
+      <point x="136.0" y="220.0" />
+      <point x="59.0" y="192.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Items" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.Clients" relationship="REFERENCES">
+      <point x="0.0" y="-123.5" />
+      <point x="97.0" y="640.0" />
+      <point x="-23.0" y="640.0" />
+      <point x="-23.0" y="600.0" />
+      <point x="-63.0" y="600.0" />
+      <point x="0.0" y="54.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserRoles" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUsers" relationship="REFERENCES">
+      <point x="-45.75" y="-42.5" />
+      <point x="651.25" y="260.0" />
+      <point x="297.0" y="260.0" />
+      <point x="297.0" y="220.0" />
+      <point x="136.0" y="220.0" />
+      <point x="59.0" y="192.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUserLogins" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetUsers" relationship="REFERENCES">
+      <point x="0.0" y="-66.0" />
+      <point x="297.0" y="220.0" />
+      <point x="136.0" y="220.0" />
+      <point x="59.0" y="192.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.ItemStorages" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.InsurancePolicies" relationship="REFERENCES">
+      <point x="63.0" y="-169.5" />
+      <point x="380.0" y="1180.0" />
+      <point x="457.0" y="1180.0" />
+      <point x="0.0" y="77.5" />
+    </edge>
+    <edge source="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetRoleClaims" target="2ba466be-039d-46c5-9239-79ca68b742cf.TABLE:main.AspNetRoles" relationship="REFERENCES">
+      <point x="0.0" y="-66.0" />
+      <point x="0.0" y="66.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.7548076923076925" showDependencies="false" x="-25.730445859872816" y="420.9999999999999" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

@@ -1,0 +1,45 @@
+﻿@page "/totalcost"
+@using VanishApp.Data.Entities
+@inject NavigationManager NM
+
+
+<div class="alert alert-info mt-3">
+    <p><strong>Total Cost:</strong> @TotalCost</p>
+    <p><strong>Old Balance:</strong> @OldBalance</p>
+    <p class="@NewBalanceClass"><strong>New Balance:</strong> <span >@NewBalance</span></p>
+</div>
+
+@if (NewBalance < 0)
+{
+    <div class="alert alert-danger">
+        <p>Your new balance is negative. Please add more funds via bank transfer:</p>
+        <p><strong>Transfer Title:</strong>@Client.getBankDetailsForTransfer().Item2</p>
+        <p><strong>Bank Account:</strong> @Client.getBankDetailsForTransfer().Item1</p>
+    </div>
+}
+<button class="btn btn-success" @onclick="OnClickDone">Done</button>
+<button class="btn btn-secondary" @onclick="OnNevermind">Cancel</button>
+
+@code {
+    [Parameter]
+    public decimal TotalCost { get; set; } 
+    [Parameter]
+    public decimal OldBalance { get; set; }
+    [Parameter]
+    public EventCallback onDone { get; set; }
+    
+    [Parameter] public Client Client { get; set; }
+    private decimal NewBalance => OldBalance - TotalCost;
+
+    private string NewBalanceClass => NewBalance < 0 ? "text-danger" : "text-success";
+
+    private void OnClickDone()
+    {
+        onDone.InvokeAsync();
+    }
+
+    private void OnNevermind()
+    {
+        NM.Refresh(true);
+    }
+}

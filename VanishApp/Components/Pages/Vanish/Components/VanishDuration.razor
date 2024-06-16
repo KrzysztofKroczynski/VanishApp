@@ -1,0 +1,120 @@
+﻿@rendermode InteractiveServer
+
+@page "/datedur"
+@using VanishApp.Data.DTO
+
+@if (VanishNow)
+{
+    <div class="form-group">
+        <label for="dateInput">Select Date</label>
+        <input type="date" class="form-control" id="dateInput" @bind="SelectedDate" min="@MinDate.ToString("yyyy-MM-dd")" disabled>
+    </div>
+}
+else
+{
+    <div class="form-group">
+        <label for="dateInput">Select Date</label>
+        <input type="date" class="form-control" id="dateInput" @bind="SelectedDate" min="@MinDate.ToString("yyyy-MM-dd")">
+    </div>
+}
+<div class="form-group">
+    <label for="durationInput">Enter Duration (months)</label>
+    <input type="number" class="form-control" id="durationInput" @bind="DurationInMonths" min="1">
+</div>
+
+<div class="form-group">
+    <label for="pickupAddress">Pickup Address</label>
+    <label class="card-subtitle">(Please leave the address field blank, if you want to deliver the item yourself)</label>
+    <input type="text" class="form-control" id="pickupAddress" @bind="PickupAddress">
+</div>
+
+<div class="form-group">
+    <input type="checkbox" id="sameAddressCheckbox" @bind="IsSameAddress">
+    <label for="sameAddressCheckbox">Pickup address same as drop-off</label>
+</div>
+
+<div class="form-group" hidden="@IsSameAddress">
+    <label for="dropoffAddress">Drop-off Address</label>
+    <label class="card-subtitle">(Please leave the address field blank, if you want to deliver the item yourself)</label>
+    <input type="text" class="form-control" id="dropoffAddress" @bind="DropoffAddress">
+</div>
+
+<div class="alert alert-info mt-3">
+    Selected Date: @SelectedDate.ToShortDateString()<br/>
+    Duration: @DurationInMonths months<br/>
+    End Date: @EndDate.ToShortDateString()<br/>
+
+</div>
+
+<button class="btn btn-primary" @onclick="@HandleNext">Next</button>
+
+@code {
+    private DateTime _selectedDate = DateTime.Now;
+    private int _durationInMonths = 1;
+
+    [Parameter] 
+    public bool VanishNow { get; set; } = true;
+    [Parameter] public EventCallback<VanishDurationDTO> OnFinishDuration { get; set; }
+
+    private DateTime SelectedDate
+    {
+        get => _selectedDate;
+        set
+        {
+            if (value<MinDate)
+            {
+                value = MinDate;
+            }
+            _selectedDate = value;
+        }
+    }
+
+    private DateTime MinDate { get; set; } = DateTime.Now;
+
+    private int DurationInMonths
+    {
+        get => _durationInMonths;
+        set
+        {
+            if (value<1)
+            {
+                value = 1;
+            }
+            _durationInMonths = value;
+        }
+    }
+
+    private string PickupAddress { get; set; } = string.Empty;
+    private string DropoffAddress { get; set; } = string.Empty;
+    private bool IsSameAddress { get; set; } = true;
+    
+
+    private DateTime EndDate => SelectedDate.AddMonths(DurationInMonths);
+
+    private Task HandleNext()
+    {
+       return OnFinishDuration.InvokeAsync(new VanishDurationDTO(){VanishDateTimeStart = SelectedDate, VanishDateTimeEnd = EndDate, DropoffAddress = DropoffAddress,PickupAddress = PickupAddress});
+    }
+
+    protected override void OnInitialized()
+    {
+        if (VanishNow)
+        {
+            MinDate = DateTime.Now;
+        }
+        else
+        {
+            MinDate = DateTime.Now.AddDays(2);
+            SelectedDate=SelectedDate.AddDays(2);
+        }
+       
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsSameAddress)
+        {
+            DropoffAddress = PickupAddress;
+        }
+    }
+}

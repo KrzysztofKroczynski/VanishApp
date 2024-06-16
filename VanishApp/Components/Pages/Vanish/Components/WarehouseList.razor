@@ -1,0 +1,46 @@
+﻿@using VanishApp.Data.Entities
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Address</th>
+        <th scope="col">Total Capacity</th>
+        <th scope="col">Warehouse Type</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var warehouse in Warehouses)
+    {
+        <tr>
+            <th scope="row">@warehouse.Id</th>
+            <td>@warehouse.Address</td>
+            <td>@warehouse.TotalCapacity</td>
+            <td>@GetWarehouseType(warehouse)</td>
+            <td><button class="btn btn-primary" @onclick="() => OnRowClick(warehouse)">Select</button></td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public List<Warehouse> Warehouses { get; set; } 
+    [Parameter] public EventCallback<Warehouse> OnSelectedWarehouseChanged { get; set; }
+
+    private async Task OnRowClick(Warehouse warehouse)
+    {
+        await OnSelectedWarehouseChanged.InvokeAsync(warehouse);
+    }
+
+    private string GetWarehouseType(Warehouse warehouse)
+    {
+        return warehouse switch
+        {
+            RegularWarehouse => "Regular",
+            HighSecurityWarehouse => "High Security",
+            ClimateControlledWarehouse => "Climate Controlled",
+            _ => "Unknown"
+        };
+    }
+}

@@ -1,0 +1,48 @@
+﻿@using VanishApp.Data.Entities
+@rendermode InteractiveServer
+@page "/warehouselist"
+
+<h3>Select a Warehouse</h3>
+
+<WarehouseList Warehouses="warehouses" OnSelectedWarehouseChanged="HandleSelectedWarehouseChanged" />
+
+@if (selectedWarehouse != null)
+{
+    <div class="alert alert-info mt-3">
+        <h4>Selected Warehouse Details</h4>
+        <p><strong>Address:</strong> @selectedWarehouse.Address</p>
+        <p><strong>Total Capacity:</strong> @selectedWarehouse.TotalCapacity</p>
+        <p><strong>Warehouse Type:</strong> @GetWarehouseType(selectedWarehouse)</p>
+        <p><strong>Fee for 30 Days:</strong> @selectedWarehouse.GetWarehouseFee(TimeSpan.FromDays(30))</p>
+    </div>
+}
+
+@code {
+    private List<Warehouse> warehouses = new List<Warehouse>
+    {
+        new RegularWarehouse { Id = 1, Address = "123 Main St", TotalCapacity = 100 },
+        new HighSecurityWarehouse { Id = 2, Address = "456 Secure Blvd", TotalCapacity = 50, SecurityLevel = 3 },
+        new ClimateControlledWarehouse { Id = 3, Address = "789 Climate Dr", TotalCapacity = 80, DailyFee = 30, ClimateFee = 10 },
+        new RegularWarehouse { Id = 4, Address = "321 Industrial Rd", TotalCapacity = 200 },
+        new HighSecurityWarehouse { Id = 5, Address = "654 Safe St", TotalCapacity = 75, SecurityLevel = 5 },
+        new ClimateControlledWarehouse { Id = 6, Address = "987 Climate Ave", TotalCapacity = 60, DailyFee = 25, ClimateFee = 15 }
+    };
+
+    private Warehouse selectedWarehouse;
+
+    private void HandleSelectedWarehouseChanged(Warehouse warehouse)
+    {
+        selectedWarehouse = warehouse;
+    }
+
+    private string GetWarehouseType(Warehouse warehouse)
+    {
+        return warehouse switch
+        {
+            RegularWarehouse => "Regular",
+            HighSecurityWarehouse => "High Security",
+            ClimateControlledWarehouse => "Climate Controlled",
+            _ => "Unknown"
+        };
+    }
+}

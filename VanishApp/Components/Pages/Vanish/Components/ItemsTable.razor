@@ -1,0 +1,41 @@
+﻿@using VanishApp.Data.Entities
+
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Size</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var item in ItemList)
+    {
+        <tr onclick="()=>OnRowClick(item)">
+            <th scope="row">@item.Id</th>
+            <td>@item.Name</td>
+            <td>@item.Size pallets</td>
+            <td>@item.Weight kg</td>
+            <td><button class="btn btn-primary" @onclick="() => OnRowClick(item)">Select</button></td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+@code {
+    [Parameter] public List<Item> ItemList { get; set; }
+
+    [Parameter] public EventCallback<Item> OnSelectedItemChanged { get; set; }
+
+    private async Task OnRowClick(Item item)
+    {
+         OnSelectedItemChanged.InvokeAsync(item);
+    }
+
+
+}

@@ -1,0 +1,45 @@
+﻿@page "/policylist"
+@using VanishApp.Data.Entities
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Max Payout</th>
+        <th scope="col">Fee</th>
+        <th scope="col">Includes Hazard Items</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var policy in Policies)
+    {
+        <tr>
+            <th scope="row">@policy.Id</th>
+            <td>@policy.Name</td>
+            <td>@policy.MaxPayout zł</td>
+            <td>@policy.Fee zł</td>
+            <td>@(policy.IncludesHazardItems ? "Yes" : "No")</td>
+            <td><button class="btn btn-primary" @onclick="() => OnRowClick(policy)">Select</button></td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+
+    [Parameter] public List<InsurancePolicy> Policies { get; set; } = new()
+    {
+        new InsurancePolicy(){Id = 1, MaxPayout = 100_000,Fee = 200,IncludesHazardItems = true,Name = "Best Policy"},
+        new InsurancePolicy(){Id = 1, MaxPayout = 100_000,Fee = 200,IncludesHazardItems = true,Name = "Best Policy"},
+        new InsurancePolicy(){Id = 1, MaxPayout = 100_000,Fee = 200,IncludesHazardItems = true,Name = "Best Policy"},
+        new InsurancePolicy(){Id = 1, MaxPayout = 100_000,Fee = 200,IncludesHazardItems = true,Name = "Best Policy"},
+    };
+        [Parameter] public EventCallback<InsurancePolicy> OnSelectedPolicyChanged { get; set; }
+
+    private async Task OnRowClick(InsurancePolicy policy)
+    {
+        await OnSelectedPolicyChanged.InvokeAsync(policy);
+    }
+}

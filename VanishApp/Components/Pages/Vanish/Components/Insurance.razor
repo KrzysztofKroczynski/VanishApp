@@ -1,0 +1,20 @@
+﻿@page "/insurancequestion"
+
+
+<h3>Would you like to insure your item?</h3>
+
+<div class="d-flex justify-content-around mt-3">
+    <button class="btn btn-success" @onclick="() => OnInsuranceResponse(true)">Yes</button>
+    <button class="btn btn-danger" @onclick="() => OnInsuranceResponse(false)">No</button>
+</div>
+
+@code {
+[Parameter] public EventCallback<bool> InsuranceResponseChanged { get; set; }
+private bool? InsuranceResponse { get; set; } = null;
+
+private async Task OnInsuranceResponse(bool response)
+{
+InsuranceResponse = response;
+await InsuranceResponseChanged.InvokeAsync(response);
+}
+}
